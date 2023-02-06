@@ -2,6 +2,7 @@ using AutoMapper;
 using CloudSaaSCodingTask.Core.Repositories;
 using CloudSaaSCodingTask.Infrastructure.Data;
 using CloudSaaSCodingTask.Infrastructure.Repositories;
+using CloudSaaSCodingTask.Web.Helpers;
 using CloudSaaSCodingTask.Web.Mapping;
 using CloudSaaSCodingTask.Web.Seed;
 using Fluxor;
@@ -14,30 +15,18 @@ using Microsoft.Extensions.Configuration;
 using System;
 
 var builder = WebApplication.CreateBuilder(args);
+var dbType = builder.Configuration["DbType"].ToString();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddControllers();
-var dbType = builder.Configuration["DbType"].ToString();
 
-//inmemory
-if (dbType == "0")
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase(builder.Configuration["DbName"]));
-}
-//sqlite
-else if (dbType == "1")
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
-}
-//sql
-else if (dbType == "2")
-{
-    builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
-}
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(EFGenericRepository<>));
+builder.Services.AddCustomDbContext(builder.Configuration)
+    .AddAutoMapper();
+
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(EFGenericRepository<>));
 builder.Services.AddScoped(sp =>
 {
     var client = new HttpClient();
@@ -49,14 +38,6 @@ builder.Services.AddFluxor(options =>
 {
     options.ScanAssemblies(typeof(Program).Assembly);
 });
-
-var mapperConfig = new MapperConfiguration(mc =>
-{
-    mc.AddProfile(new MappingProfile());
-});
-
-IMapper mapper = mapperConfig.CreateMapper();
-builder.Services.AddSingleton(mapper);
 
 var app = builder.Build();
 
