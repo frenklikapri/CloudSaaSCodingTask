@@ -6,7 +6,7 @@ on:
 
 env:
   WORKING_DIRECTORY: CloudSaaSCodingTask
-  AZURE_WEBAPP_NAME: CloudSaaSCodingTask
+  AZURE_WEBAPP_NAME: CloudSaaSCodingTask2
   DOTNET_VERSION: '6.0.x' # The .NET SDK version to use
   PUBLISH_PROFILE: ${{ secrets.AZURE_PUBLISH_PROFILE }}
   
