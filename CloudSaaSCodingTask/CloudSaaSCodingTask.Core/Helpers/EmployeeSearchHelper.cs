@@ -24,38 +24,6 @@ namespace CloudSaaSCodingTask.Core.Helpers
             Expression<Func<Employee, bool>> filter = i => i.Name.ToLower().Contains(name)
                 && i.Email.ToLower().Contains(email)
                 && i.Department.ToLower().Contains(department);
-            //Expression<Func<Employee, bool>> filter = null;
-
-            //if (!string.IsNullOrEmpty(name))
-            //{
-            //    filter = i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase);
-            //}
-
-            //if (!string.IsNullOrEmpty(email))
-            //{
-            //    if (filter is null)
-            //    {
-            //        filter = i => i.Email.Contains(email, StringComparison.OrdinalIgnoreCase);
-            //    }
-            //    else
-            //    {
-            //        var compiled = filter.Compile();
-            //        filter = i => compiled(i) && i.Email.Contains(email, StringComparison.OrdinalIgnoreCase);
-            //    }
-            //}
-
-            //if (!string.IsNullOrEmpty(department))
-            //{
-            //    if (filter is null)
-            //    {
-            //        filter = i => i.Department.Contains(department, StringComparison.OrdinalIgnoreCase);
-            //    }
-            //    else
-            //    {
-            //        var compiled = filter.Compile();
-            //        filter = i => compiled(i) && i.Department.Contains(department, StringComparison.OrdinalIgnoreCase);
-            //    }
-            //}
 
             return filter;
         }
