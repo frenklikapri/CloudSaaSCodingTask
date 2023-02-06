@@ -2,7 +2,7 @@ name: Publish Admin UI
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
 
 env:
   WORKING_DIRECTORY: CloudSaaSCodingTask
