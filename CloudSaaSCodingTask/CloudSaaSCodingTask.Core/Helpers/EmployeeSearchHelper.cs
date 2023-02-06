@@ -19,9 +19,11 @@ namespace CloudSaaSCodingTask.Core.Helpers
             if (department is null)
                 department = string.Empty;
 
-            Expression<Func<Employee, bool>> filter = i => i.Name.Contains(name, StringComparison.OrdinalIgnoreCase)
-                && i.Email.Contains(email, StringComparison.OrdinalIgnoreCase)
-                && i.Department.Contains(department, StringComparison.OrdinalIgnoreCase);
+            name = name.ToLower();
+
+            Expression<Func<Employee, bool>> filter = i => i.Name.ToLower().Contains(name)
+                && i.Email.ToLower().Contains(email)
+                && i.Department.ToLower().Contains(department);
             //Expression<Func<Employee, bool>> filter = null;
 
             //if (!string.IsNullOrEmpty(name))

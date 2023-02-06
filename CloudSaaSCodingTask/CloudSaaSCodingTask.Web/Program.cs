@@ -19,7 +19,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddControllers();
-builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase(builder.Configuration["DbName"]));
+var dbType = builder.Configuration["DbType"].ToString();
+
+//inmemory
+if (dbType == "0")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseInMemoryDatabase(builder.Configuration["DbName"]));
+}
+//sqlite
+else if (dbType == "1")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+}
+//sql
+else if (dbType == "2")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(opt => opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnectionString")));
+}
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(EFGenericRepository<>));
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped(sp =>
@@ -47,6 +63,12 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dataContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    if(dbType != "0")
+    {
+        dataContext.Database.EnsureCreated();
+    }
+
     dataContext.Seed();
 }
 
