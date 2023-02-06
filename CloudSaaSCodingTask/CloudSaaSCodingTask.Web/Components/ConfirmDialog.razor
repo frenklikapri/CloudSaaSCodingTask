@@ -1,0 +1,82 @@
+﻿@inject Microsoft.JSInterop.IJSRuntime JS
+
+<div class="modal fade" id="@ModalId" tabindex="-1" role="dialog" aria-labelledby="confirmDialogLabel" aria-hidden="true"
+     style="@(ZIndex > 0 ? $"z-index: {ZIndex};" : "")">
+    <div class="modal-dialog @(Centered ? "modal-dialog-centered" : "")" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDialogLabel">
+                    @ConfirmationTitle
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @ConfirmationMessage
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn @CancelButtonClass" data-dismiss="modal"
+                        @onclick="() => OnConfirmationChange(false)">
+                    @CancelButtonText
+                </button>
+                <button type="button" class="btn @ConfirmButtonClass"
+                        @onclick="() => OnConfirmationChange(true)">
+                    @ConfirmButtonText
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Microsoft.JSInterop.IJSObjectReference module;
+
+    [Parameter]
+    public bool Centered { get; set; }
+
+    [Parameter]
+    public string ConfirmationTitle { get; set; } = "Confirm Delete";
+
+    [Parameter]
+    public string ConfirmationMessage { get; set; } = "Are you sure you want to delete that?";
+
+    [Parameter]
+    public string CancelButtonText { get; set; } = "Cancel";
+
+    [Parameter]
+    public string ConfirmButtonClass { get; set; } = "btn-danger";
+
+    [Parameter]
+    public string CancelButtonClass { get; set; } = "btn-secondary";
+
+    [Parameter]
+    public string ModalId { get; set; } = "confirmDialogModal";
+
+    [Parameter]
+    public string ConfirmButtonText { get; set; } = "Delete";
+
+    [Parameter]
+    public int ZIndex { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            module = await JS.InvokeAsync<Microsoft.JSInterop.IJSObjectReference>("import",
+                "./js/dialog/confirmDialog.js");
+        }
+    }
+
+    [Parameter]
+    public EventCallback<bool> ConfirmationChanged { get; set; }
+
+    protected async Task OnConfirmationChange(bool value)
+    {
+        await module.InvokeAsync<string>("hideModal", ModalId);
+        await ConfirmationChanged.InvokeAsync(value);
+    }
+
+    public async Task Show()
+    {
+        await module.InvokeAsync<string>("showModal", ModalId);
+    }
+}

@@ -1,0 +1,140 @@
+﻿@page "/"
+@using CloudSaaSCodingTask.Core.Dtos
+
+<h3>Employees</h3>
+
+<button class="btn btn-primary" @onclick="AddClicked">New Employee</button>
+
+<PaginatedTable UseIQueryable="false"
+                GetItemsAsListAsync="GetItems"
+                TotalColumns="4"
+                SearchDelayMs="700"
+                ShowSearch="false"
+                @ref="_paginatedTable">
+    <HeaderTemplate>
+        <tr>
+            <th scope="col">
+                <div class="d-flex">
+                    <label class="lh-38 cursor-pointer column-label">
+                        Name
+                    </label>
+                    <input class="form-control ms-2 w-100" @onchange="@(e => ChangeName(e))" disabled="@_paginatedTable.Loading" />
+                </div>
+            </th>
+            <th scope="col">
+                <div class="d-flex">
+                    <label class="lh-38 cursor-pointer column-label lh-40">
+                        Email
+                    </label>
+                    <input class="form-control ms-2 w-100" @onchange="@(e => ChangeEmail(e))" disabled="@_paginatedTable.Loading" />
+                </div>
+            </th>
+            <th scope="col">
+                <div class="d-flex">
+                    <label class="lh-38 cursor-pointer column-label">
+                        Birthday
+                    </label>
+                </div>
+            </th>
+            <th scope="col">
+                <div class="d-flex">
+                    <label class="lh-38 cursor-pointer column-label">
+                        Department
+                    </label>
+                    <input class="form-control ms-2 w-100" @onchange="@(e => ChangeDepartment(e))" disabled="@_paginatedTable.Loading" />
+                </div>
+            </th>
+            <th scope="col">
+            </th>
+        </tr>
+    </HeaderTemplate>
+    <RowTemplate Context="_itemTemplate">
+        <tr class="cursor-pointer hover-row">
+            <td>
+                @_itemTemplate.Name
+            </td>
+            <td>
+                @_itemTemplate.Email
+            </td>
+            <td>
+                @_itemTemplate.DateOfBirth.ToShortDateString()
+            </td>
+            <td>
+                @_itemTemplate.Department
+            </td>
+            <td class="text-end">
+                <button class="btn btn-outline-primary" @onclick="() => EditClicked(_itemTemplate)">Edit</button>
+                <button class="btn btn-danger" @onclick="() => DeleteClicked(_itemTemplate)">Delete</button>
+            </td>
+        </tr>
+    </RowTemplate>
+</PaginatedTable>
+
+
+<div class="modal fade" id="modalSaveEmployee" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Save Employee</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="_employeeToSave" OnValidSubmit="SaveEmployee" id="saveEmployeeForm">
+                    <DataAnnotationsValidator />
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Name
+                        </label>
+                        <InputText class="form-control" @bind-Value="_employeeToSave.Name"></InputText>
+                        <ValidationMessage For="(() => _employeeToSave.Name)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Email
+                        </label>
+                        <InputText class="form-control" @bind-Value="_employeeToSave.Email"></InputText>
+                        <ValidationMessage For="(() => _employeeToSave.Email)" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Date of Birth
+                        </label>
+                        <InputDate class="form-control" @bind-Value="_employeeToSave.DateOfBirth"></InputDate>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Department
+                        </label>
+                        <InputText class="form-control" @bind-Value="_employeeToSave.Department"></InputText>
+                        <ValidationMessage For="(() => _employeeToSave.Department)" />
+                    </div>
+                </EditForm>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" form="saveEmployeeForm" class="btn btn-primary"
+                        disabled="@_loading">
+                    @if (_loading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        <text>Loading...</text>
+                    }
+                    else
+                    {
+                        <text>
+                            Send
+                        </text>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ConfirmDialog Centered="false"
+               ConfirmationChanged="ConfirmDeleteChanged"
+               CancelButtonText="Cancel"
+               ConfirmButtonText="Delete"
+               ConfirmationTitle="Confirm Delete"
+               ConfirmationMessage="@(string.Format("Are you sure you want to delete employee '{0}'?", _employeeToDelete?.Name) )"
+               @ref="_confirmDialog" />
